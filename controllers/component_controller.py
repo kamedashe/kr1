@@ -15,6 +15,14 @@ class ComponentController:
             "name": self.view.name.get(),
             "unit": self.view.unit.get(),
             "qty": self.view.quantity.get(),
+
+
+            "id": self.view.comp_id.get(),
+            "name": self.view.name.get(),
+            "unit": self.view.unit.get(),
+            "quantity_in_stock": self.view.quantity.get(),
+
+
         }
 
     def on_add(self):
