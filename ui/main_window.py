@@ -8,7 +8,6 @@ from ui.orders_tab import OrdersTab
 from ui.warehouse_tab import WarehouseTab
 
 
-
 from ui.component_tab import ComponentTab
 from ui.supplier_tab import SupplierTab
 from ui.warehouse_tab import WarehouseTab
@@ -37,13 +36,11 @@ class MainWindow(tk.Tk):
             ("Замовлення", OrdersTab(notebook)),
             ("Склади", WarehouseTab(notebook)),
 
-
             ("Комплектуючі", ComponentTab(notebook)),
             ("Постачальники", SupplierTab(notebook)),
             ("Склади", WarehouseTab(notebook)),
             ("Комірники", StorekeeperTab(notebook)),
             ("Поставки", SupplyTab(notebook)),
-
 
         ]
 
@@ -70,8 +67,6 @@ class MainWindow(tk.Tk):
 
 
 
-
 if __name__ == "__main__":
     app = MainWindow()
     app.mainloop()
-
