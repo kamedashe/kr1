@@ -24,9 +24,11 @@ class ComponentController:
         self.view.refresh(self.service.list_all())
 
     def on_update(self):
+        cid = self.view.comp_id.get()
         dto = self._dto_from_view()
-        self.service.update(dto)
+        self.service.update(cid, dto)
         self.view.refresh(self.service.list_all())
+   
 
     def on_delete(self):
         cid = self.view.comp_id.get()
