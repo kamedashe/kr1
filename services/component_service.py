@@ -29,7 +29,8 @@ class ComponentService:
     def delete(self, comp_id: int) -> bool:
         return self.dao.delete(comp_id)
 
-    def increment_stock(self, comp_id: int, delta: int) -> None:
-        if not isinstance(comp_id, int) or not isinstance(delta, int):
-            raise ValueError("IDs and delta must be integers")
-        self.dao.update_quantity(comp_id, delta)
+    def increment_stock(self, component_id: int, delta: int) -> None:
+        """Increase stock quantity for a component by ``delta``."""
+        if not isinstance(component_id, int) or not isinstance(delta, int):
+            raise ValueError("component_id and delta must be integers")
+        self.dao.update_quantity(component_id, delta)
