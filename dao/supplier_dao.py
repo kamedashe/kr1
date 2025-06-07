@@ -1,4 +1,6 @@
 import sqlite3
+from typing import Optional
+
 from models.supplier import Supplier
 
 class SupplierDAO:
@@ -21,42 +23,45 @@ class SupplierDAO:
         self.conn.commit()
 
     def insert(self, supplier: Supplier) -> int:
-        with self.conn:
-            cur = self.conn.execute(
-                "INSERT INTO suppliers (name, contact_info) VALUES (?, ?)",
-                (supplier.name, supplier.contact_info),
-            )
-            supplier.id = cur.lastrowid
+        cur = self.conn.execute(
+            "INSERT INTO suppliers (name, contact_info) VALUES (?, ?)",
+            (supplier.name, supplier.contact_info),
+        )
+        self.conn.commit()
+        supplier.id = cur.lastrowid
         return supplier.id
 
     def update(self, supplier: Supplier) -> bool:
-        with self.conn:
-            cur = self.conn.execute(
-                "UPDATE suppliers SET name = ?, contact_info = ? WHERE id = ?",
-                (supplier.name, supplier.contact_info, supplier.id),
-            )
+        cur = self.conn.execute(
+            "UPDATE suppliers SET name = ?, contact_info = ? WHERE id = ?",
+            (supplier.name, supplier.contact_info, supplier.id),
+        )
+        self.conn.commit()
         return cur.rowcount > 0
 
     def delete(self, supplier_id: int) -> bool:
-        with self.conn:
-            cur = self.conn.execute("DELETE FROM suppliers WHERE id = ?", (supplier_id,))
+        cur = self.conn.execute("DELETE FROM suppliers WHERE id = ?", (supplier_id,))
+        self.conn.commit()
         return cur.rowcount > 0
 
-    def find_by_id(self, supplier_id: int) -> Supplier | None:
+    def find_by_id(self, supplier_id: int) -> Optional[Supplier]:
         cur = self.conn.execute(
             "SELECT id, name, contact_info FROM suppliers WHERE id = ?",
             (supplier_id,),
         )
         row = cur.fetchone()
-        if not row:
-            return None
-        return Supplier(id=row[0], name=row[1], contact_info=row[2])
+        if row:
+            return Supplier(id=row[0], name=row[1], contact_info=row[2])
+        return None
 
     def find_all(self) -> list[Supplier]:
         cur = self.conn.execute(
             "SELECT id, name, contact_info FROM suppliers ORDER BY name"
         )
-        return [Supplier(id=r[0], name=r[1], contact_info=r[2]) for r in cur.fetchall()]
+        return [
+            Supplier(id=row[0], name=row[1], contact_info=row[2])
+            for row in cur.fetchall()
+        ]
 
     def find_by_name(self, name_part: str) -> list[Supplier]:
         pattern = f"%{name_part}%"
@@ -64,4 +69,7 @@ class SupplierDAO:
             "SELECT id, name, contact_info FROM suppliers WHERE name LIKE ?",
             (pattern,),
         )
-        return [Supplier(id=r[0], name=r[1], contact_info=r[2]) for r in cur.fetchall()]
+        return [
+            Supplier(id=row[0], name=row[1], contact_info=row[2])
+            for row in cur.fetchall()
+        ]
