@@ -1,3 +1,4 @@
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -39,4 +40,3 @@ class OrdersTab(ttk.Frame):
                 iid=row.get("id"),
                 values=(row.get("order_id"), row.get("supplier"), row.get("status"), row.get("date")),
             )
-
