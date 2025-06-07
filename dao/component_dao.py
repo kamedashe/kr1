@@ -1,39 +1,70 @@
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, select
-from sqlalchemy.engine import Engine
-
+import sqlite3
+from models.component import Component
 
 class ComponentDAO:
-    def __init__(self, engine: Engine):
-        self.engine = engine
-        self.metadata = MetaData()
-        self.table = Table(
-            "components",
-            self.metadata,
-            Column("id", Integer, primary_key=True),
-            Column("name", String, nullable=False),
-            Column("unit", String, nullable=False),
-            Column("qty", Integer, nullable=False, default=0),
-        )
-        self.metadata.create_all(engine)
+    """SQLite-based DAO for components."""
 
-    def insert(self, dto: dict) -> int:
-        with self.engine.begin() as conn:
-            result = conn.execute(self.table.insert().values(**dto))
-            return result.inserted_primary_key[0]
+    def __init__(self, conn: sqlite3.Connection):
+        self.conn = conn
+        self._ensure_table()
 
-    def select_all(self) -> list[dict]:
-        with self.engine.begin() as conn:
-            result = conn.execute(select(self.table))
-            return [dict(row._mapping) for row in result]
-
-    def update(self, pk: int, dto: dict) -> int:
-        with self.engine.begin() as conn:
-            result = conn.execute(
-                self.table.update().where(self.table.c.id == pk).values(**dto)
+    def _ensure_table(self):
+        self.conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS components (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                unit TEXT NOT NULL,
+                quantity_in_stock INTEGER NOT NULL DEFAULT 0
             )
-            return result.rowcount
+            """
+        )
+        self.conn.commit()
 
-    def delete(self, pk: int) -> int:
-        with self.engine.begin() as conn:
-            result = conn.execute(self.table.delete().where(self.table.c.id == pk))
-            return result.rowcount
+    # CRUD --------------------------------------------------
+    def insert(self, comp: Component) -> int:
+        with self.conn:
+            cur = self.conn.execute(
+                "INSERT INTO components (name, unit, quantity_in_stock) VALUES (?, ?, ?)",
+                (comp.name, comp.unit, comp.quantity_in_stock),
+            )
+            comp.id = cur.lastrowid
+        return comp.id
+
+    def select_all(self) -> list[Component]:
+        cur = self.conn.execute("SELECT id, name, unit, quantity_in_stock FROM components ORDER BY id")
+        rows = cur.fetchall()
+        return [
+            Component(id=row[0], name=row[1], unit=row[2], quantity_in_stock=row[3])
+            for row in rows
+        ]
+
+    def find_by_id(self, comp_id: int) -> Component | None:
+        cur = self.conn.execute(
+            "SELECT id, name, unit, quantity_in_stock FROM components WHERE id = ?",
+            (comp_id,),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        return Component(id=row[0], name=row[1], unit=row[2], quantity_in_stock=row[3])
+
+    def update(self, comp: Component) -> bool:
+        with self.conn:
+            cur = self.conn.execute(
+                "UPDATE components SET name = ?, unit = ?, quantity_in_stock = ? WHERE id = ?",
+                (comp.name, comp.unit, comp.quantity_in_stock, comp.id),
+            )
+        return cur.rowcount > 0
+
+    def update_quantity(self, comp_id: int, delta: int) -> None:
+        with self.conn:
+            self.conn.execute(
+                "UPDATE components SET quantity_in_stock = quantity_in_stock + ? WHERE id = ?",
+                (delta, comp_id),
+            )
+
+    def delete(self, comp_id: int) -> bool:
+        with self.conn:
+            cur = self.conn.execute("DELETE FROM components WHERE id = ?", (comp_id,))
+        return cur.rowcount > 0

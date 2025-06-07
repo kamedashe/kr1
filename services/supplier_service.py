@@ -1,17 +1,18 @@
 from dao.supplier_dao import SupplierDAO
+from models.supplier import Supplier
 
 class SupplierService:
     def __init__(self, dao: SupplierDAO):
         self.dao = dao
 
-    def create(self, dto: dict) -> int:
-        return self.dao.insert(dto)
+    def create(self, supplier: Supplier) -> int:
+        return self.dao.insert(supplier)
 
-    def list_all(self) -> list[dict]:
-        return self.dao.select_all()
+    def list_all(self) -> list[Supplier]:
+        return self.dao.find_all()
 
-    def update(self, pk: int, dto: dict) -> int:
-        return self.dao.update(pk, dto)
+    def update(self, supplier: Supplier) -> bool:
+        return self.dao.update(supplier)
 
-    def delete(self, pk: int) -> int:
-        return self.dao.delete(pk)
+    def delete(self, supplier_id: int) -> bool:
+        return self.dao.delete(supplier_id)
