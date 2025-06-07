@@ -12,9 +12,10 @@ class ComponentController:
 
     def _dto_from_view(self) -> dict:
         return {
+            "id": self.view.comp_id.get(),
             "name": self.view.name.get(),
             "unit": self.view.unit.get(),
-            "qty": self.view.quantity.get(),
+            "quantity_in_stock": self.view.quantity.get(),
         }
 
     def on_add(self):
@@ -27,6 +28,7 @@ class ComponentController:
         dto = self._dto_from_view()
         self.service.update(cid, dto)
         self.view.refresh(self.service.list_all())
+   
 
     def on_delete(self):
         cid = self.view.comp_id.get()
