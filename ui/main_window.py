@@ -7,6 +7,7 @@ from ui.suppliers_tab import SuppliersTab
 from ui.orders_tab import OrdersTab
 from ui.warehouse_tab import WarehouseTab
 
+
 from ui.component_tab import ComponentTab
 from ui.supplier_tab import SupplierTab
 from ui.warehouse_tab import WarehouseTab
@@ -30,7 +31,6 @@ class MainWindow(tk.Tk):
         notebook.columnconfigure(0, weight=1)
 
         tabs = [
-
             ("Звіти", ReportsTab(notebook)),
             ("Постачальники", SuppliersTab(notebook)),
             ("Замовлення", OrdersTab(notebook)),
@@ -66,7 +66,7 @@ class MainWindow(tk.Tk):
         self.warehouse_controller = ctrl
 
 
+
 if __name__ == "__main__":
     app = MainWindow()
     app.mainloop()
-
