@@ -4,11 +4,16 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import pytest, tkinter as tk
+import pytest
+import tkinter as tk
+from tkinter import TclError
 from ui.supply_window import SupplyWindow
 
 def test_supply_window_creation(monkeypatch):
-    root = tk.Tk()
+    try:
+        root = tk.Tk()
+    except TclError:
+        pytest.skip("Tk not available")
     # Перехоплюємо метод center_window, щоб не відкривалось GUI.
     monkeypatch.setattr(SupplyWindow, 'center_window', lambda self, w, h: None)
     win = tk.Toplevel(root)
