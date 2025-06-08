@@ -26,3 +26,14 @@ def test_insert_and_find_all(dao):
     all_s = dao.find_all()
     assert any(x.id == s_id for x in all_s)
     assert all_s[0].supply_date == date(2025, 5, 30)
+
+
+def test_find_by_id(dao):
+    s = Supply(supply_date=date(2024, 1, 1), supplier_id=1, warehouse_id=1, storekeeper_id=1)
+    s_id = dao.insert(s)
+    found = dao.find_by_id(s_id)
+    assert found is not None
+    assert found.supply_date == date(2024, 1, 1)
+    assert found.supplier_id == 1
+    assert found.warehouse_id == 1
+    assert found.storekeeper_id == 1
