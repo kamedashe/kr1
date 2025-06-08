@@ -18,23 +18,23 @@ class MainWindow(tk.Tk):
         self.rowconfigure(0, weight=1)
         self.columnconfigure(0, weight=1)
 
-        notebook = ttk.Notebook(self)
-        notebook.grid(row=0, column=0, sticky="nsew")
-        notebook.rowconfigure(0, weight=1)
-        notebook.columnconfigure(0, weight=1)
+        self.nb = ttk.Notebook(self)
+        self.nb.grid(row=0, column=0, sticky="nsew")
+        self.nb.rowconfigure(0, weight=1)
+        self.nb.columnconfigure(0, weight=1)
 
         tabs = [
-            ("Звіти", ReportsTab(notebook)),
-            ("Постачальники", SuppliersTab(notebook)),
-            ("Замовлення", OrdersTab(notebook)),
-            ("Склади", WarehouseTab(notebook)),
-            ("Комплектуючі", ComponentTab(notebook)),
-            ("Комірники", StorekeeperTab(notebook)),
-            ("Поставки", SupplyTab(notebook)),
+            ("Звіти", ReportsTab(self.nb)),
+            ("Постачальники", SuppliersTab(self.nb)),
+            ("Замовлення", OrdersTab(self.nb)),
+            ("Склади", WarehouseTab(self.nb)),
+            ("Комплектуючі", ComponentTab(self.nb)),
+            ("Комірники", StorekeeperTab(self.nb)),
+            ("Поставки", SupplyTab(self.nb)),
         ]
 
         for text, tab in tabs:
-            notebook.add(tab, text=text)
+            self.nb.add(tab, text=text)
 
 
 
