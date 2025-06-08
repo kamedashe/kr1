@@ -7,6 +7,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest, tkinter as tk
 from ui.supply_window import SupplyWindow
 
+
+@pytest.mark.skipif(os.environ.get("DISPLAY", "") == "", reason="no display")
 def test_supply_window_creation(monkeypatch):
     root = tk.Tk()
     # Перехоплюємо метод center_window, щоб не відкривалось GUI.
