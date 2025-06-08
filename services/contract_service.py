@@ -1,12 +1,12 @@
-from dao.supplier_dao import SupplierDAO
+from dao.contract_dao import ContractDAO
 
 class ContractService:
     """Фасад для валідації контрактів постачальників."""
-    def __init__(self, supplier_dao: SupplierDAO):
-        self.supplier_dao = supplier_dao
+    def __init__(self, contract_dao: ContractDAO):
+        self.contract_dao = contract_dao
 
-    def validate_contract(self, supplier_id: int):
-        """Може перевіряти, чи постачальник має всі необхідні дані для контракту."""
-        supplier = self.supplier_dao.find_by_id(supplier_id)
+    def validate_contract(self, contract_id: int):
+        """Може перевіряти, чи контракт містить усю необхідну контактну інформацію."""
+        contract = self.contract_dao.find_by_id(contract_id)
         # Тут може бути додаткова логіка
-        return supplier is not None and supplier.contact_info != ""
+        return contract is not None and contract.contact_info != ""
