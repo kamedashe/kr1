@@ -1,5 +1,3 @@
-
-import tkinter as tk
 from tkinter import ttk
 
 
@@ -17,8 +15,10 @@ class OrdersTab(ttk.Frame):
         self.table = ttk.Treeview(self, columns=columns, show="headings")
         for col in columns:
             self.table.heading(col, text=col.title())
+
         scroll = ttk.Scrollbar(self, orient="vertical", command=self.table.yview)
         self.table.configure(yscrollcommand=scroll.set)
+
         self.table.grid(row=2, column=0, sticky="nsew")
         scroll.grid(row=2, column=1, sticky="ns")
 
@@ -38,5 +38,11 @@ class OrdersTab(ttk.Frame):
                 "",
                 "end",
                 iid=row.get("id"),
-                values=(row.get("order_id"), row.get("supplier"), row.get("status"), row.get("date")),
+                values=(
+                    row.get("order_id"),
+                    row.get("supplier"),
+                    row.get("status"),
+                    row.get("date"),
+                ),
             )
+
