@@ -45,3 +45,17 @@ class SupplyDAO:
                 storekeeper_id=row[4]
             ) for row in rows
         ]
+
+    def find_by_id(self, supply_id: int) -> Supply | None:
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM supplies WHERE id = ?", (supply_id,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        return Supply(
+            id=row[0],
+            supply_date=datetime.fromisoformat(row[1]).date(),
+            supplier_id=row[2],
+            warehouse_id=row[3],
+            storekeeper_id=row[4]
+        )
