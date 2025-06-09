@@ -2,7 +2,7 @@ from db.database import get_connection
 from ui.main_window import MainWindow
 from controllers.supplier_controller import SupplierController
 from controllers.component_controller import ComponentController
-from controllers.order_controller import OrderController
+from controllers.orders_controller import OrderController
 from controllers.report_controller import ReportController
 from controllers.supply_controller import SupplyController
 from services.supplier_service import SupplierService
