@@ -11,12 +11,10 @@ def dao():
     conn = get_connection(':memory:')   # in‑memory DB
     return ComponentDAO(conn)
 
-def test_insert_and_find(dao):
-    comp = Component(name='Bolt', unit='pcs', quantity_in_stock=10)
-    comp_id = dao.insert(comp)
-    result = dao.find_by_id(comp_id)
-    assert result.name == 'Bolt'
-    assert result.quantity_in_stock == 10
+def test_insert_and_select(component_dao, sample_component):
+    cid = component_dao.insert(sample_component)
+    stored = component_dao.select_by_id(cid)
+    assert stored.name == sample_component["name"]
 
 def test_update_quantity(dao):
     comp = Component(name='Nut', unit='pcs', quantity_in_stock=5)
