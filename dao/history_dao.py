@@ -1,4 +1,6 @@
 class HistoryDAO:
-    """DAO для історії (заглушка)."""
-    def fetch_records(self, filters=None):
+    def select_all(self):
         return []
+
+    def fetch_records(self, filters=None):
+        return self.select_all()

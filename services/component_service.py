@@ -10,10 +10,10 @@ class ComponentService:
     def create(self, comp: Component) -> int:
         if not comp.validate():
             raise ValueError("Invalid component data")
-        return self.dao.insert(comp)
+        return self.dao.insert_component(comp)
 
     def list_all(self) -> list[Component]:
-        return self.dao.select_all()
+        return self.dao.select_all_components()
 
     def get_by_id(self, comp_id: int) -> Component:
         comp = self.dao.find_by_id(comp_id)
@@ -24,7 +24,7 @@ class ComponentService:
     def update(self, comp: Component) -> bool:
         if not comp.validate():
             raise ValueError("Invalid component data")
-        return self.dao.update(comp)
+        return self.dao.update_component(comp)
 
     def delete(self, comp_id: int) -> bool:
         return self.dao.delete(comp_id)

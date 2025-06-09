@@ -1,18 +1,17 @@
-class OrderService:
-    """Simple in-memory order management service."""
+from dao.order_dao import OrderDAO
 
-    def __init__(self):
-        self._orders: list[dict] = []
-        self._next_id = 1
+
+class OrderService:
+    """Facade for order management via DAO."""
+
+    def __init__(self, order_dao: OrderDAO):
+        self.order_dao = order_dao
 
     def create(self, dto: dict) -> dict:
-        """Create a new order from ``dto`` and return stored representation."""
+        order_id = self.order_dao.insert(dto)
         order = dict(dto)
-        order["id"] = self._next_id
-        self._next_id += 1
-        self._orders.append(order)
+        order["id"] = order_id
         return order
 
     def list_all(self) -> list[dict]:
-        """Return list of all created orders."""
-        return list(self._orders)
+        return self.order_dao.find_all()
