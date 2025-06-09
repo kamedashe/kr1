@@ -6,8 +6,18 @@ class ReportController:
 
     def generate_report(self):
         """Generate a report using the configured service."""
-        pass
+        if not self.report_service or not self.view:
+            return
+        rows = []
+        if hasattr(self.view, "get_rows"):
+            rows = self.view.get_rows()
+        out = self.report_service.export(rows, "report.out")
+        return out
 
     def show_supply_history(self):
         """Display supply history using the history service."""
-        pass
+        if not self.history_service or not self.view:
+            return
+        data = self.history_service.get_history()
+        if hasattr(self.view, "display_history"):
+            self.view.display_history(data)

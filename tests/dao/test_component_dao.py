@@ -11,8 +11,17 @@ def dao():
     conn = get_connection(':memory:')   # in‑memory DB
     return ComponentDAO(conn)
 
+@pytest.fixture
+def component_dao():
+    conn = get_connection(':memory:')
+    return ComponentDAO(conn)
+
+@pytest.fixture
+def sample_component():
+    return {"name": "Bolt", "unit": "pcs", "quantity_in_stock": 10}
+
 def test_insert_and_select(component_dao, sample_component):
-    cid = component_dao.insert(sample_component)
+    cid = component_dao.insert(Component(**sample_component))
     stored = component_dao.select_by_id(cid)
     assert stored.name == sample_component["name"]
 
