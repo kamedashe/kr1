@@ -3,8 +3,7 @@ from controllers.report_controller import ReportController
 from controllers.supplier_controller import SupplierController
 from controllers.component_controller import ComponentController
 from controllers.supply_controller import SupplyController
-from controllers.orders_controller import OrdersController
-
+from controllers.orders_controller import OrderController
 
 def test_report_controller_methods():
     assert hasattr(ReportController, "generate_report")
