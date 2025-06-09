@@ -1,3 +1,5 @@
 fpdf
 pytest
 PyPDF2
+sqlalchemy
+python-dateutil
