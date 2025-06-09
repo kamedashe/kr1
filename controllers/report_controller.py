@@ -5,19 +5,22 @@ class ReportController:
         self.view = view
 
     def generate_report(self):
-        """Generate a report using the configured service."""
-        if not self.report_service or not self.view:
+        """Fetch history and export to a chosen file."""
+        if not self.report_service or not self.history_service:
             return
-        rows = []
-        if hasattr(self.view, "get_rows"):
-            rows = self.view.get_rows()
-        out = self.report_service.export(rows, "report.out")
-        return out
+        rows = self.history_service.list_all()
+        if not rows:
+            return
+        from tkinter.filedialog import asksaveasfilename
+        path = asksaveasfilename()
+        if not path:
+            return
+        kind = "pdf" if path.lower().endswith(".pdf") else "csv"
+        return self.report_service.export(kind, rows, path)
 
     def show_supply_history(self):
-        """Display supply history using the history service."""
+        """Refresh the view with supply history."""
         if not self.history_service or not self.view:
             return
-        data = self.history_service.get_history()
-        if hasattr(self.view, "display_history"):
-            self.view.display_history(data)
+        if hasattr(self.view, "refresh"):
+            self.view.refresh(self.history_service.list_all())

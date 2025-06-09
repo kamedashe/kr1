@@ -1,13 +1,12 @@
-from strategy.export_strategy import ExportStrategy
+from strategy.csv_export_strategy import CSVExportStrategy
+from strategy.pdf_export_strategy import PDFExportStrategy
 
 class ReportService:
-    def __init__(self):
-        self.strategy: ExportStrategy = None
-
-    def set_strategy(self, strategy: ExportStrategy):
-        self.strategy = strategy
-
-    def export(self, rows, out_path):
-        if not self.strategy:
-            raise Exception("Стратегія експорту не вибрана!")
-        return self.strategy.export(rows, out_path)
+    def export(self, kind: str, rows, out_path="report.out"):
+        if kind == "csv":
+            strategy = CSVExportStrategy()
+        elif kind == "pdf":
+            strategy = PDFExportStrategy()
+        else:
+            raise ValueError("Unsupported export type")
+        return strategy.export(rows, out_path)

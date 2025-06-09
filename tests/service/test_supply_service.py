@@ -29,10 +29,11 @@ def test_register_supply_ok(service, supply_dao, record_dao):
         SupplyRecord(supply_id=None, component_id=2, quantity=5, price=50.0)
     ]
     supply_dao.insert.side_effect = lambda s: setattr(s, 'id', 1) or 1
-    service.register_supply(supply, records)
+    result = service.register({"supply": supply, "records": records})
     supply_dao.insert.assert_called_once_with(supply)
     assert all(r.supply_id == 1 for r in records)
     assert record_dao.insert.call_count == 2
+    assert result == "<<SupplySaved>>"
 
 def test_register_supply_empty_records(service):
     supply = Supply(
@@ -42,4 +43,4 @@ def test_register_supply_empty_records(service):
         storekeeper_id=1
     )
     with pytest.raises(ValueError):
-        service.register_supply(supply, [])
+        service.register({"supply": supply, "records": []})
