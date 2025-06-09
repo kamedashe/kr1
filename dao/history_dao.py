@@ -1,6 +1,12 @@
 class HistoryDAO:
+    def __init__(self, conn=None):
+        self.conn = conn
+
+    def insert(self, dto):
+        pass
+
     def select_all(self):
         return []
 
-    def fetch_records(self, filters=None):
-        return self.select_all()
+    def find_by_id(self, history_id):
+        return None

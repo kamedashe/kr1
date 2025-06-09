@@ -1,4 +1,3 @@
-
 class OrderController:
     def __init__(self, service=None, view=None, contract_service=None):
         self.service = service
@@ -24,7 +23,8 @@ class OrderController:
         if hasattr(self.view, "get_selected_contract"):
             cid = self.view.get_selected_contract()
         return self.contract_service.verify(cid)
-        """Create a new order."""
+
+
 class OrdersController:
     def __init__(self, view=None, service=None, contract_service=None):
         self.view = view
@@ -43,8 +43,9 @@ class OrdersController:
 
     def check_contract(self):
         """Check supplier contract for the current order."""
-
-        if self.contract_service:
-            self.contract_service.validate_contract(1)
-        if self.view and hasattr(self.view, "refresh"):
-            self.view.refresh(self.service.list_all())
+        cid = None
+        if self.view and hasattr(self.view, "get_selected_contract"):
+            cid = self.view.get_selected_contract()
+        if not self.contract_service:
+            return None
+        return self.contract_service.verify(cid)
