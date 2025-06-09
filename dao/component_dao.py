@@ -22,7 +22,10 @@ class ComponentDAO:
         self.conn.commit()
 
     # CRUD --------------------------------------------------
-    def insert(self, comp: Component) -> int:
+    def insert(self, dto):
+        pass
+
+    def insert_component(self, comp: Component) -> int:
         with self.conn:
             cur = self.conn.execute(
                 "INSERT INTO components (name, unit, quantity_in_stock) VALUES (?, ?, ?)",
@@ -31,7 +34,10 @@ class ComponentDAO:
             comp.id = cur.lastrowid
         return comp.id
 
-    def select_all(self) -> list[Component]:
+    def select_all(self):
+        pass
+
+    def select_all_components(self) -> list[Component]:
         cur = self.conn.execute("SELECT id, name, unit, quantity_in_stock FROM components ORDER BY id")
         rows = cur.fetchall()
         return [
@@ -39,7 +45,7 @@ class ComponentDAO:
             for row in rows
         ]
 
-    def find_by_id(self, comp_id: int) -> Component | None:
+    def select_by_id(self, comp_id: int) -> Component | None:
         cur = self.conn.execute(
             "SELECT id, name, unit, quantity_in_stock FROM components WHERE id = ?",
             (comp_id,),
@@ -50,11 +56,14 @@ class ComponentDAO:
         return Component(id=row[0], name=row[1], unit=row[2], quantity_in_stock=row[3])
 
     # Alias for backwards compatibility with tests
-    def select_by_id(self, comp_id: int) -> Component | None:
-        """Return component by ID (same as :meth:`find_by_id`)."""
-        return self.find_by_id(comp_id)
+    def find_by_id(self, comp_id: int) -> Component | None:
+        """Return component by ID (same as :meth:`select_by_id`)."""
+        return self.select_by_id(comp_id)
 
-    def update(self, comp: Component) -> bool:
+    def update(self, id, dto):
+        pass
+
+    def update_component(self, comp: Component) -> bool:
         with self.conn:
             cur = self.conn.execute(
                 "UPDATE components SET name = ?, unit = ?, quantity_in_stock = ? WHERE id = ?",

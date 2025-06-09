@@ -21,13 +21,13 @@ def sample_component():
     return {"name": "Bolt", "unit": "pcs", "quantity_in_stock": 10}
 
 def test_insert_and_select(component_dao, sample_component):
-    cid = component_dao.insert(Component(**sample_component))
+    cid = component_dao.insert_component(Component(**sample_component))
     stored = component_dao.select_by_id(cid)
     assert stored.name == sample_component["name"]
 
 def test_update_quantity(dao):
     comp = Component(name='Nut', unit='pcs', quantity_in_stock=5)
-    comp_id = dao.insert(comp)
+    comp_id = dao.insert_component(comp)
     dao.update_quantity(comp_id, 3)
     updated = dao.find_by_id(comp_id)
     assert updated.quantity_in_stock == 8
