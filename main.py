@@ -2,7 +2,6 @@ from db.database import get_connection
 from ui.main_window import MainWindow
 from controllers.supplier_controller import SupplierController
 from controllers.component_controller import ComponentController
-from controllers.orders_controller import OrderController
 from controllers.report_controller import ReportController
 from controllers.supply_controller import SupplyController
 from services.supplier_service import SupplierService
@@ -21,6 +20,7 @@ from dao.warehouse_dao import WarehouseDAO
 from dao.storekeeper_dao import StorekeeperDAO
 from dao.supply_dao import SupplyDAO
 from dao.supply_record_dao import SupplyRecordDAO
+from dao.order_dao import OrderDAO
 from dao.contract_dao import ContractDAO
 from dao.history_dao import HistoryDAO
 
@@ -66,9 +66,9 @@ def main():
     )
     suppliers_tab.set_controller(supplier_ctrl)
 
-    orders_ctrl = OrderController(
+    orders_ctrl = OrdersController(
         orders_tab,
-        OrderService(),
+        OrderService(OrderDAO(conn)),
         ContractService(ContractDAO()),
     )
     orders_tab.set_controller(orders_ctrl)

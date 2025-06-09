@@ -5,7 +5,7 @@ from tkinter import ttk
 class ComponentTab(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.controller = None
+        self.controller: object | None = None
 
         self.comp_id = tk.IntVar()
         self.name = tk.StringVar()
@@ -48,9 +48,14 @@ class ComponentTab(ttk.Frame):
 
     def set_controller(self, ctrl):
         self.controller = ctrl
-        self.btn_add.config(command=self.controller.on_add)
-        self.btn_update.config(command=self.controller.on_update)
-        self.btn_delete.config(command=self.controller.on_delete)
+        if ctrl is None:
+            return
+        if hasattr(ctrl, "on_add"):
+            self.btn_add.config(command=ctrl.on_add)
+        if hasattr(ctrl, "on_update"):
+            self.btn_update.config(command=ctrl.on_update)
+        if hasattr(ctrl, "on_delete"):
+            self.btn_delete.config(command=ctrl.on_delete)
 
     def refresh(self, data):
         for item in self.table.get_children():
@@ -66,3 +71,13 @@ class ComponentTab(ttk.Frame):
                     row.get("quantity_in_stock"),
                 ),
             )
+
+    def clear_form(self):
+        self.comp_id.set(0)
+        self.name.set("")
+        self.unit.set("")
+        self.quantity.set(0)
+        self.unit_cb.set("")
+        self.qty_sp.delete(0, tk.END)
+        self.qty_sp.insert(0, "0")
+

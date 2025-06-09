@@ -5,7 +5,6 @@ from controllers.component_controller import ComponentController
 from controllers.supply_controller import SupplyController
 from controllers.orders_controller import OrderController
 
-
 def test_report_controller_methods():
     assert hasattr(ReportController, "generate_report")
     assert hasattr(ReportController, "show_supply_history")
@@ -28,5 +27,5 @@ def test_supply_controller_methods():
 
 
 def test_order_controller_methods():
-    assert hasattr(OrderController, "create_order")
-    assert hasattr(OrderController, "check_contract")
+    assert hasattr(OrdersController, "create_order")
+    assert hasattr(OrdersController, "check_contract")
