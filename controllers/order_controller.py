@@ -5,19 +5,21 @@ class OrderController:
         self.contract_service = contract_service
 
     def create_order(self):
-        """Create a new order."""
-        if not self.service:
+        """Create an order from the view form."""
+        if not self.view or not self.service:
             return
         dto = {}
-        if self.view and hasattr(self.view, "get_order_dto"):
-            dto = self.view.get_order_dto()
+        if hasattr(self.view, "dto_from_form"):
+            dto = self.view.dto_from_form()
         self.service.create(dto)
-        if self.view and hasattr(self.view, "refresh"):
+        if hasattr(self.view, "refresh"):
             self.view.refresh(self.service.list_all())
 
     def check_contract(self):
-        """Check supplier contract for the current order."""
-        if self.contract_service:
-            self.contract_service.validate_contract(1)
-        if self.view and hasattr(self.view, "refresh"):
-            self.view.refresh(self.service.list_all())
+        """Validate selected supplier contract."""
+        if not self.contract_service or not self.view:
+            return None
+        cid = None
+        if hasattr(self.view, "get_selected_contract"):
+            cid = self.view.get_selected_contract()
+        return self.contract_service.verify(cid)

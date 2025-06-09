@@ -8,3 +8,6 @@ class HistoryService:
         """Return supply history records from DAO."""
         return self.history_dao.fetch_records(filters)
 
+    def list_all(self):
+        return self.get_history()
+

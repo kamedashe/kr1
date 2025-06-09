@@ -10,3 +10,6 @@ class ContractService:
         contract = self.contract_dao.find_by_id(contract_id)
         # Тут може бути додаткова логіка
         return contract is not None and contract.contact_info != ""
+
+    def verify(self, contract_id: int):
+        return self.validate_contract(contract_id)
