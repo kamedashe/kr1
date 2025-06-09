@@ -49,6 +49,11 @@ class ComponentDAO:
             return None
         return Component(id=row[0], name=row[1], unit=row[2], quantity_in_stock=row[3])
 
+    # Alias for backwards compatibility with tests
+    def select_by_id(self, comp_id: int) -> Component | None:
+        """Return component by ID (same as :meth:`find_by_id`)."""
+        return self.find_by_id(comp_id)
+
     def update(self, comp: Component) -> bool:
         with self.conn:
             cur = self.conn.execute(

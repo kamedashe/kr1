@@ -2,6 +2,9 @@ from db.database import get_connection
 from ui.main_window import MainWindow
 from controllers.supplier_controller import SupplierController
 from controllers.component_controller import ComponentController
+from controllers.order_controller import OrderController
+from controllers.report_controller import ReportController
+from controllers.supply_controller import SupplyController
 from services.supplier_service import SupplierService
 from services.component_service import ComponentService
 from services.warehouse_service import WarehouseService
@@ -22,32 +25,6 @@ from dao.contract_dao import ContractDAO
 from dao.history_dao import HistoryDAO
 
 
-class ReportsController:
-    def __init__(self, view, report_service: ReportService, history_service: HistoryService):
-        self.view = view
-        self.report_service = report_service
-        self.history_service = history_service
-
-    def generate_report(self):
-        pass
-
-    def show_supply_history(self):
-        pass
-
-
-class OrdersController:
-    def __init__(self, view, order_service: OrderService, contract_service: ContractService):
-        self.view = view
-        self.order_service = order_service
-        self.contract_service = contract_service
-
-    def create_order(self):
-        pass
-
-    def check_contract(self):
-        pass
-
-
 class WarehouseController:
     def __init__(self, view, service: WarehouseService):
         self.view = view
@@ -60,13 +37,6 @@ class StorekeeperController:
         self.service = service
 
 
-class SupplyController:
-    def __init__(self, view, service: SupplyService):
-        self.view = view
-        self.service = service
-
-    def register_supply(self):
-        pass
 
 
 def main():
@@ -83,7 +53,7 @@ def main():
     storekeeper_tab = nb.nametowidget(tabs[5])
     supply_tab = nb.nametowidget(tabs[6])
 
-    reports_ctrl = ReportsController(
+    reports_ctrl = ReportController(
         reports_tab,
         ReportService(),
         HistoryService(HistoryDAO()),
@@ -96,7 +66,7 @@ def main():
     )
     suppliers_tab.set_controller(supplier_ctrl)
 
-    orders_ctrl = OrdersController(
+    orders_ctrl = OrderController(
         orders_tab,
         OrderService(),
         ContractService(ContractDAO()),
