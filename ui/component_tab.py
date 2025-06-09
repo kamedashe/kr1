@@ -5,7 +5,7 @@ from tkinter import ttk
 class ComponentTab(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
-        self.controller: object | None = None
+        self.controller = None
 
         self.comp_id = tk.IntVar()
         self.name = tk.StringVar()
@@ -21,13 +21,12 @@ class ComponentTab(ttk.Frame):
         self.unit_cb.grid(row=1, column=1, sticky="ew")
 
         ttk.Label(self, text="Qty").grid(row=2, column=0, sticky="e")
-        self.qty_sp = ttk.Spinbox(self, from_=0, to=100000, textvariable=self.quantity)
+        self.qty_sp = tk.Spinbox(self, from_=0, to=100000, textvariable=self.quantity)
         self.qty_sp.grid(row=2, column=1, sticky="ew")
 
         self.btn_add = ttk.Button(self, text="Add")
         self.btn_update = ttk.Button(self, text="Update")
         self.btn_delete = ttk.Button(self, text="Delete")
-
         self.btn_add.grid(row=3, column=0, pady=4)
         self.btn_update.grid(row=3, column=1, pady=4)
         self.btn_delete.grid(row=3, column=2, pady=4)
@@ -57,6 +56,13 @@ class ComponentTab(ttk.Frame):
         if hasattr(ctrl, "on_delete"):
             self.btn_delete.config(command=ctrl.on_delete)
 
+    def dto_from_form(self):
+        return {
+            "name": self.name.get(),
+            "unit": self.unit.get(),
+            "quantity_in_stock": self.quantity.get(),
+        }
+
     def refresh(self, data):
         for item in self.table.get_children():
             self.table.delete(item)
@@ -77,7 +83,7 @@ class ComponentTab(ttk.Frame):
         self.name.set("")
         self.unit.set("")
         self.quantity.set(0)
-        self.unit_cb.set("")
+        if self.unit_cb["values"]:
+            self.unit_cb.set("")
         self.qty_sp.delete(0, tk.END)
         self.qty_sp.insert(0, "0")
-

@@ -2,9 +2,11 @@
 # але драйвер показує, що вікно SupplyWindow створюється без помилок.
 import sys
 import os
+import pytest
+if not os.environ.get("DISPLAY") and os.name != "nt":
+    pytest.skip("No display – GUI tests skipped", allow_module_level=True)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import pytest
 import tkinter as tk
 from tkinter import TclError
 from ui.supply_window import SupplyWindow

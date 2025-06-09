@@ -1,13 +1,12 @@
-from dao.supply_dao import SupplyDAO
-
 class HistoryService:
     def __init__(self, history_dao):
         self.history_dao = history_dao
 
     def get_history(self, filters=None):
         """Return supply history records from DAO."""
-        return self.history_dao.fetch_records(filters)
+        if hasattr(self.history_dao, "fetch_records"):
+            return self.history_dao.fetch_records(filters)
+        return self.history_dao.select_all()
 
     def list_all(self):
-        return self.get_history()
-
+        return self.history_dao.select_all()

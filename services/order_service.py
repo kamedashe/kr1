@@ -9,9 +9,10 @@ class OrderService:
 
     def create(self, dto: dict) -> dict:
         order_id = self.order_dao.insert(dto)
-        order = dict(dto)
-        order["id"] = order_id
-        return order
+        dto = dict(dto)
+        if order_id is not None:
+            dto["id"] = order_id
+        return dto
 
     def list_all(self) -> list[dict]:
-        return self.order_dao.find_all()
+        return self.order_dao.select_all()

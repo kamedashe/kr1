@@ -4,18 +4,21 @@ class SupplyController:
         self.view = view
 
     def register_supply(self):
-        """Register supply via service."""
-        if not self.view or not self.service:
+        """Register supply via service and fire event."""
+        if not self.service:
             return
         dto = {}
-        if hasattr(self.view, "dto_from_form"):
+        if self.view and hasattr(self.view, "dto_from_form"):
             dto = self.view.dto_from_form()
-        else:
+        elif self.view:
             try:
                 dto = {
                     "supply": self.view.get_supply(),
                     "records": self.view.get_records(),
                 }
             except AttributeError:
-                return
-        return self.service.register(dto)
+                pass
+        result = self.service.register(dto)
+        if self.view and hasattr(self.view, "event_generate"):
+            self.view.event_generate("<<SupplySaved>>")
+        return result
