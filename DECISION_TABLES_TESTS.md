@@ -1108,23 +1108,29 @@ describe('OrderForm - Decision Table Tests', () => {
 | Authentication | #7 | 4 | 4 | 100% |
 | **Всього** | **7 таблиць** | **35 правил** | **19 тестів** | **54%** |
 
-### Frontend Coverage
+### Frontend Coverage ⚠️
 
-| Компонент | Таблиця рішень | Правил | Тестів реалізовано | Покриття |
-|-----------|---------------|--------|-------------------|----------|
-| SupplierForm | #8 | 5 | 5 | 100% |
-| ComponentsList | #9 | 4 | 3 | 75% |
-| OrderForm | #10 | 5 | 3 | 60% |
-| **Всього** | **3 таблиці** | **14 правил** | **11 тестів** | **79%** |
+| Компонент | Таблиця рішень | Правил | Тестів реалізовано | Покриття | Статус |
+|-----------|---------------|--------|-------------------|----------|--------|
+| SupplierForm | #8 | 5 | 0 | 0% | Приклад коду |
+| ComponentsList | #9 | 4 | 0 | 0% | Приклад коду |
+| OrderForm | #10 | 5 | 0 | 0% | Приклад коду |
+| **Всього** | **3 таблиці** | **14 правил** | **0 тестів** | **0%** | **Не реалізовано** |
+
+**Примітка:** Frontend тести наведені як приклади коду в розділах 8-10 для майбутньої реалізації.
 
 ---
 
 ## Запуск тестів
 
-### Backend
+### Backend ✅ РЕАЛІЗОВАНО
 
 ```bash
 cd backend
+
+# Активувати віртуальне середовище
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
 
 # Запустити всі тести з таблиць рішень
 pytest tests/api/test_suppliers_decision_table.py -v
@@ -1133,27 +1139,91 @@ pytest tests/api/test_suppliers_decision_table.py -v
 pytest tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable -v
 
 # З покриттям коду
-pytest tests/api/ --cov=backend/app --cov-report=html
+pytest tests/api/ -v --cov=app --cov-report=term-missing
+
+# З HTML звітом покриття
+pytest tests/api/ -v --cov=app --cov-report=html
 ```
 
-### Frontend
+**Результат:**
+```
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R1_valid_data_success PASSED
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R2_duplicate_name_error PASSED
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R3_missing_contact_success PASSED
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R4_missing_name_error PASSED
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R5_minimal_data_success PASSED
+tests/api/test_suppliers_decision_table.py::TestSuppliersCreationDecisionTable::test_R6_invalid_email_error PASSED
+tests/api/test_suppliers_decision_table.py::TestComponentsUpdateDecisionTable::test_R1_valid_update_success PASSED
+tests/api/test_suppliers_decision_table.py::TestComponentsUpdateDecisionTable::test_R2_nonexistent_id_404 PASSED
+tests/api/test_suppliers_decision_table.py::TestComponentsUpdateDecisionTable::test_R3_duplicate_name_error PASSED
+tests/api/test_suppliers_decision_table.py::TestComponentsUpdateDecisionTable::test_R4_negative_qty_error PASSED
+tests/api/test_suppliers_decision_table.py::TestComponentsUpdateDecisionTable::test_R5_zero_qty_success PASSED
+tests/api/test_suppliers_decision_table.py::TestOrdersCreationDecisionTable::test_R1_valid_order_success PASSED
+tests/api/test_suppliers_decision_table.py::TestOrdersCreationDecisionTable::test_R2_missing_supplier_error PASSED
+tests/api/test_suppliers_decision_table.py::TestOrdersCreationDecisionTable::test_R3_empty_supplier_error PASSED
+tests/api/test_suppliers_decision_table.py::TestOrdersCreationDecisionTable::test_R4_valid_status_success PASSED
+tests/api/test_suppliers_decision_table.py::TestAuthenticationDecisionTable::test_R1_valid_credentials_success PASSED
+tests/api/test_suppliers_decision_table.py::TestAuthenticationDecisionTable::test_R2_missing_auth_header_401 PASSED
+tests/api/test_suppliers_decision_table.py::TestAuthenticationDecisionTable::test_R3_invalid_format_401 PASSED
+tests/api/test_suppliers_decision_table.py::TestAuthenticationDecisionTable::test_R4_wrong_password_401 PASSED
 
+==================== 19 passed ====================
+```
+
+### Frontend ⚠️ ПРИКЛАДИ КОДУ
+
+Frontend тести наведені як **приклади коду** для майбутньої реалізації.
+
+Для реалізації потрібно:
+1. Встановити залежності:
 ```bash
 cd frontend
-
-# Запустити всі тести з таблиць рішень
-npm test -- --testPathPattern="decision-table"
-
-# Запустити конкретний компонент
-npm test -- SupplierForm.decision-table.test.jsx
-
-# З покриттям коду
-npm test -- --coverage --testPathPattern="decision-table"
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom @testing-library/user-event jest-environment-jsdom
 ```
+
+2. Додати скрипт test в `package.json`:
+```json
+"scripts": {
+  "test": "jest",
+  "test:watch": "jest --watch",
+  "test:coverage": "jest --coverage"
+}
+```
+
+3. Створити `jest.config.js`:
+```javascript
+export default {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
+  moduleNameMapper: {
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+  },
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',
+  },
+};
+```
+
+4. Створити тестові файли згідно з прикладами в розділах 8-10
+
+**Наразі Frontend тести не налаштовані, але Backend тести повністю функціональні.**
 
 ---
 
 ## Висновки
+
+### Реалізовано ✅
+
+**Backend тестування:**
+- ✅ **19 автоматизованих тестів** працюють успішно
+- ✅ **4 таблиці рішень** повністю реалізовані:
+  - Suppliers API (6 тестів)
+  - Components API (5 тестів)
+  - Orders API (4 тести)
+  - Authentication (4 тести)
+- ✅ Покриття: **54% правил** (19/35)
+- ✅ Тестова БД створюється автоматично
+- ✅ Очищення даних між тестами
 
 **Переваги таблиць рішень:**
 1. ✅ Систематичне покриття всіх комбінацій умов
@@ -1162,11 +1232,23 @@ npm test -- --coverage --testPathPattern="decision-table"
 4. ✅ Простота підтримки при зміні вимог
 5. ✅ Виявлення дублікатів та протиріч
 
-**Рекомендації:**
-- Додати таблиці рішень для решти модулів (Warehouses, Storekeepers, Supplies)
+### Рекомендації для покращення
+
+**Backend:**
+- Додати таблиці рішень для Warehouses, Storekeepers, Supplies API
+- Додати валідацію унікальності імен в API
 - Реалізувати недостатні тести для досягнення 100% покриття
-- Автоматизувати запуск тестів у CI/CD pipeline
+- Налаштувати CI/CD pipeline для автоматичного запуску тестів
+
+**Frontend:**
+- Налаштувати Jest + React Testing Library
+- Реалізувати тести згідно з прикладами в розділах 8-10
+- Додати E2E тести (Cypress/Playwright)
+
+**Загальне:**
 - Регулярно оновлювати таблиці при зміні бізнес-логіки
+- Додати інтеграційні тести
+- Налаштувати покриття коду в CI/CD
 
 ---
 
