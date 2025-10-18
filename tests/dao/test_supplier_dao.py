@@ -1,39 +1,53 @@
 import sqlite3
 import pytest
-from models.supplier import Supplier
 from dao.supplier_dao import SupplierDAO
+
 
 @pytest.fixture
 def dao():
     conn = sqlite3.connect(':memory:')
     return SupplierDAO(conn)
 
+
 def test_insert_and_find_by_id(dao):
-    s = Supplier(name="Sigma", contact_info="sig@mail.com")
-    s_id = dao.insert(s)
+    """Test inserting and finding supplier by ID."""
+    data = {"name": "Sigma", "contact_info": "sig@mail.com"}
+    s_id = dao.insert(data)
     assert s_id > 0
+
     found = dao.find_by_id(s_id)
-    assert found.name == "Sigma"
-    assert found.contact_info == "sig@mail.com"
+    assert found is not None
+    assert found["name"] == "Sigma"
+    assert found["contact_info"] == "sig@mail.com"
+
 
 def test_update_and_find_all(dao):
-    s = Supplier(name="Beta", contact_info="b@b.com")
-    dao.insert(s)
-    s.name = "Alpha"
-    dao.update(s)
+    """Test updating supplier and retrieving all."""
+    data = {"name": "Beta", "contact_info": "b@b.com"}
+    s_id = dao.insert(data)
+
+    # Update
+    update_data = {"id": s_id, "name": "Alpha", "contact_info": "b@b.com"}
+    dao.update(update_data)
+
     all_s = dao.find_all()
-    assert any(x.name == "Alpha" for x in all_s)
+    assert any(x["name"] == "Alpha" for x in all_s)
+
 
 def test_delete(dao):
-    s = Supplier(name="ToDelete", contact_info="none")
-    dao.insert(s)
-    assert dao.delete(s.id)
-    assert dao.find_by_id(s.id) is None
+    """Test deleting a supplier."""
+    data = {"name": "ToDelete", "contact_info": "none"}
+    s_id = dao.insert(data)
+
+    assert dao.delete(s_id)
+    assert dao.find_by_id(s_id) is None
+
 
 def test_find_by_name(dao):
-    s1 = Supplier(name="AlphaComp", contact_info="a@a.com")
-    s2 = Supplier(name="Betta", contact_info="b@b.com")
-    dao.insert(s1)
-    dao.insert(s2)
+    """Test finding suppliers by partial name."""
+    dao.insert({"name": "AlphaComp", "contact_info": "a@a.com"})
+    dao.insert({"name": "Betta", "contact_info": "b@b.com"})
+
     results = dao.find_by_name("Alpha")
-    assert len(results) == 1 and results[0].name == "AlphaComp"
+    assert len(results) == 1
+    assert results[0]["name"] == "AlphaComp"
