@@ -66,7 +66,7 @@ async def get_component(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/", response_model=dict)
+@router.post("/", response_model=dict, status_code=201)
 async def create_component(
     component: ComponentCreate,
     service: ComponentService = Depends(get_component_service),

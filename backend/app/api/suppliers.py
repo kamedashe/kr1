@@ -63,7 +63,7 @@ async def get_supplier(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.post("/", response_model=dict)
+@router.post("/", response_model=dict, status_code=201)
 async def create_supplier(
     supplier: SupplierCreate,
     service: SupplierService = Depends(get_supplier_service),

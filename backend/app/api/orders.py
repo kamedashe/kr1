@@ -52,7 +52,7 @@ async def list_orders(
     return orders
 
 
-@router.post("/", response_model=dict)
+@router.post("/", response_model=dict, status_code=201)
 async def create_order(
     order: OrderCreate,
     service: OrderService = Depends(get_order_service),
@@ -61,7 +61,7 @@ async def create_order(
     """Create a new order."""
     try:
         result = service.create(order.model_dump())
-        return {"id": result.get("id"), "message": "Order created successfully"}
+        return {"id": result.get("id"), "message": "Order created successfully", "status": "Очікує"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
