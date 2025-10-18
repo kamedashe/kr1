@@ -32,14 +32,7 @@ class TestSuppliersCreationDecisionTable:
     - R6: Невалідний email - помилка
     """
 
-    def setup_method(self):
-        """Очищає suppliers перед кожним тестом"""
-        # Отримуємо всіх постачальників та видаляємо
-        response = client.get("/api/v1/suppliers/", auth=AUTH)
-        if response.status_code == 200:
-            suppliers = response.json()
-            for supplier in suppliers:
-                client.delete(f"/api/v1/suppliers/{supplier['id']}", auth=AUTH)
+    # setup_method не потрібен - очищення відбувається автоматично через conftest.py
 
     def test_R1_valid_data_success(self):
         """
@@ -221,15 +214,9 @@ class TestComponentsUpdateDecisionTable:
     - R5: Негативна кількість - помилка
     """
 
-    def setup_method(self):
+    @pytest.fixture(autouse=True)
+    def setup_component(self):
         """Створює тестовий компонент перед кожним тестом"""
-        # Очищаємо всі компоненти
-        response = client.get("/api/v1/components/", auth=AUTH)
-        if response.status_code == 200:
-            components = response.json()
-            for component in components:
-                client.delete(f"/api/v1/components/{component['id']}", auth=AUTH)
-
         # Створюємо тестовий компонент (використовуємо правильні поля: unit та qty)
         payload = {
             "name": "Test Component Original",
@@ -239,6 +226,8 @@ class TestComponentsUpdateDecisionTable:
         response = client.post("/api/v1/components/", json=payload, auth=AUTH)
         assert response.status_code == 201, f"Setup failed: {response.status_code} - {response.text}"
         self.component_id = response.json()["id"]
+        yield
+        # Cleanup after test if needed
 
     def test_R1_valid_update_success(self):
         """
