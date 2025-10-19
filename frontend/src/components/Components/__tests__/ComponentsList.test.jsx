@@ -4,30 +4,24 @@
  * Таблиця рішень #9: Видалення компонента
  *
  * Правила:
- * - R1: Успішне видалення - компонент зникає зі списку
- * - R2: API помилка - toast помилки
- * - R3: Неіснуючий компонент - помилка
- * - R4: Без дії - список без змін
+ * - R1: Успішне видалення з підтвердженням
+ * - R2: Скасування видалення
+ * - R3: API помилка при видаленні
+ * - R4: Завантаження та відображення списку
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ComponentsList from '../ComponentsList';
-import * as componentsService from '../../../services/componentsService';
-import * as toast from 'react-hot-toast';
+import { componentsService } from '../../../services/componentsService';
 
 // Mock services
 vi.mock('../../../services/componentsService');
-vi.mock('react-hot-toast');
 
-const renderWithRouter = (component) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
-};
+// Mock window.confirm and alert
+global.confirm = vi.fn();
+global.alert = vi.fn();
 
 describe('ComponentsList - Decision Table: Видалення', () => {
   const mockComponents = [
@@ -37,15 +31,18 @@ describe('ComponentsList - Decision Table: Видалення', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // За замовчуванням завантаження успішне
+    componentsService.getAll.mockResolvedValue(mockComponents);
   });
 
-  describe('R1: Успішне видалення', () => {
-    it('повинен видалити компонент зі списку після успішного видалення', async () => {
+  describe('R1: Успішне видалення з підтвердженням', () => {
+    it('повинен видалити компонент після підтвердження', async () => {
       // Arrange
-      componentsService.getAllComponents.mockResolvedValue(mockComponents);
-      componentsService.deleteComponent.mockResolvedValue();
+      const user = userEvent.setup();
+      global.confirm.mockReturnValue(true); // Підтверджуємо видалення
+      componentsService.delete.mockResolvedValue();
 
-      renderWithRouter(<ComponentsList />);
+      render(<ComponentsList />);
 
       // Чекаємо завантаження компонентів
       await waitFor(() => {
@@ -54,25 +51,23 @@ describe('ComponentsList - Decision Table: Видалення', () => {
 
       // Act
       const deleteButtons = screen.getAllByRole('button', { name: /Видалити/i });
-      fireEvent.click(deleteButtons[0]);
+      await user.click(deleteButtons[0]);
 
       // Assert
+      expect(global.confirm).toHaveBeenCalledWith('Ви впевнені, що хочете видалити це комплектуюче?');
       await waitFor(() => {
-        expect(componentsService.deleteComponent).toHaveBeenCalledWith(1);
-        expect(toast.success).toHaveBeenCalled();
+        expect(componentsService.delete).toHaveBeenCalledWith(1);
       });
     });
   });
 
-  describe('R2: API помилка', () => {
-    it('повинен показати toast помилки при невдалому видаленні', async () => {
+  describe('R2: Скасування видалення', () => {
+    it('не повинен видаляти компонент при скасуванні', async () => {
       // Arrange
-      componentsService.getAllComponents.mockResolvedValue(mockComponents);
-      componentsService.deleteComponent.mockRejectedValue(
-        new Error('Network error')
-      );
+      const user = userEvent.setup();
+      global.confirm.mockReturnValue(false); // Скасовуємо видалення
 
-      renderWithRouter(<ComponentsList />);
+      render(<ComponentsList />);
 
       await waitFor(() => {
         expect(screen.getByText('Component 1')).toBeInTheDocument();
@@ -80,26 +75,22 @@ describe('ComponentsList - Decision Table: Видалення', () => {
 
       // Act
       const deleteButtons = screen.getAllByRole('button', { name: /Видалити/i });
-      fireEvent.click(deleteButtons[0]);
+      await user.click(deleteButtons[0]);
 
       // Assert
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
-        // Компонент залишається в списку
-        expect(screen.getByText('Component 1')).toBeInTheDocument();
-      });
+      expect(global.confirm).toHaveBeenCalled();
+      expect(componentsService.delete).not.toHaveBeenCalled();
     });
   });
 
-  describe('R3: Неіснуючий компонент', () => {
-    it('повинен показати помилку 404', async () => {
+  describe('R3: API помилка при видаленні', () => {
+    it('повинен показати alert при помилці видалення', async () => {
       // Arrange
-      componentsService.getAllComponents.mockResolvedValue(mockComponents);
-      componentsService.deleteComponent.mockRejectedValue({
-        response: { status: 404 },
-      });
+      const user = userEvent.setup();
+      global.confirm.mockReturnValue(true);
+      componentsService.delete.mockRejectedValue(new Error('Network error'));
 
-      renderWithRouter(<ComponentsList />);
+      render(<ComponentsList />);
 
       await waitFor(() => {
         expect(screen.getByText('Component 1')).toBeInTheDocument();
@@ -107,22 +98,19 @@ describe('ComponentsList - Decision Table: Видалення', () => {
 
       // Act
       const deleteButtons = screen.getAllByRole('button', { name: /Видалити/i });
-      fireEvent.click(deleteButtons[0]);
+      await user.click(deleteButtons[0]);
 
       // Assert
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
+        expect(global.alert).toHaveBeenCalledWith('Не вдалося видалити комплектуюче');
       });
     });
   });
 
-  describe('R4: Завантаження списку', () => {
+  describe('R4: Завантаження та відображення списку', () => {
     it('повинен показати список компонентів при завантаженні', async () => {
-      // Arrange
-      componentsService.getAllComponents.mockResolvedValue(mockComponents);
-
       // Act
-      renderWithRouter(<ComponentsList />);
+      render(<ComponentsList />);
 
       // Assert
       await waitFor(() => {
@@ -131,16 +119,27 @@ describe('ComponentsList - Decision Table: Видалення', () => {
       });
     });
 
-    it('повинен показати повідомлення при порожньому списку', async () => {
-      // Arrange
-      componentsService.getAllComponents.mockResolvedValue([]);
+    it('повинен показати повідомлення "Завантаження..." під час завантаження', () => {
+      // Arrange - затримуємо відповідь
+      componentsService.getAll.mockImplementation(() => new Promise(() => {}));
 
       // Act
-      renderWithRouter(<ComponentsList />);
+      render(<ComponentsList />);
+
+      // Assert
+      expect(screen.getByText('Завантаження...')).toBeInTheDocument();
+    });
+
+    it('повинен показати помилку при невдалому завантаженні', async () => {
+      // Arrange
+      componentsService.getAll.mockRejectedValue(new Error('Network error'));
+
+      // Act
+      render(<ComponentsList />);
 
       // Assert
       await waitFor(() => {
-        expect(screen.queryByText('Component 1')).not.toBeInTheDocument();
+        expect(screen.getByText('Не вдалося завантажити комплектуючі')).toBeInTheDocument();
       });
     });
   });

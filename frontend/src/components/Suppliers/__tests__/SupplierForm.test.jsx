@@ -5,149 +5,114 @@
  *
  * Правила:
  * - R1: Всі поля валідні - успішне збереження
- * - R2: Порожня назва - помилка
+ * - R2: Порожня назва - alert помилки
  * - R3: Порожній контакт - успіх (опціонально)
- * - R4: Невалідний email - помилка
- * - R5: Форма не відправлена - кнопка заблокована
+ * - R4: Форма працює з onSubmit callback
+ * - R5: Оновлення існуючого постачальника
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
 import SupplierForm from '../SupplierForm';
-import * as suppliersService from '../../../services/suppliersService';
-import * as toast from 'react-hot-toast';
 
-// Mock services
-vi.mock('../../../services/suppliersService');
-vi.mock('react-hot-toast');
-
-const renderWithRouter = (component) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
-};
+// Mock window.alert
+global.alert = vi.fn();
 
 describe('SupplierForm - Decision Table Tests', () => {
-  const mockOnSuccess = vi.fn();
+  const mockOnSubmit = vi.fn();
+  const mockOnCancel = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('R1: Всі поля валідні - успішне збереження', () => {
-    it('повинен успішно створити постачальника з валідними даними', async () => {
+    it('повинен успішно викликати onSubmit з валідними даними', async () => {
       // Arrange
       const user = userEvent.setup();
-      suppliersService.createSupplier.mockResolvedValue({
-        id: 1,
-        name: 'Test Supplier',
-        contact_info: 'test@example.com',
-      });
-
-      renderWithRouter(<SupplierForm onSuccess={mockOnSuccess} />);
+      render(<SupplierForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
 
       // Act
-      const nameInput = screen.getByPlaceholderText(/Назва постачальника/i);
-      const contactInput = screen.getByPlaceholderText(/Контактна інформація/i);
+      const nameInput = screen.getByPlaceholderText(/Введіть назву постачальника/i);
+      const contactInput = screen.getByPlaceholderText(/Телефон, email, адреса/i);
 
       await user.type(nameInput, 'Test Supplier');
       await user.type(contactInput, 'test@example.com');
 
-      const submitButton = screen.getByRole('button', { name: /Зберегти/i });
+      const submitButton = screen.getByRole('button', { name: /Створити/i });
       await user.click(submitButton);
 
       // Assert
-      await waitFor(() => {
-        expect(suppliersService.createSupplier).toHaveBeenCalledWith({
-          name: 'Test Supplier',
-          contact_info: 'test@example.com',
-        });
-        expect(toast.success).toHaveBeenCalled();
-        expect(mockOnSuccess).toHaveBeenCalled();
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        name: 'Test Supplier',
+        contact_info: 'test@example.com',
       });
     });
   });
 
-  describe('R2: Порожня назва - помилка', () => {
-    it('повинен показати помилку при порожній назві', async () => {
+  describe('R2: Порожня назва - помилка валідації', () => {
+    it('повинен запобігти відправці форми з порожньою назвою', async () => {
       // Arrange
       const user = userEvent.setup();
-      renderWithRouter(<SupplierForm onSuccess={mockOnSuccess} />);
+      render(<SupplierForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
 
-      // Act
-      const contactInput = screen.getByPlaceholderText(/Контактна інформація/i);
+      // Act - вводимо тільки контакт, назву залишаємо порожньою
+      const contactInput = screen.getByPlaceholderText(/Телефон, email, адреса/i);
       await user.type(contactInput, 'test@example.com');
 
-      const submitButton = screen.getByRole('button', { name: /Зберегти/i });
+      const nameInput = screen.getByPlaceholderText(/Введіть назву постачальника/i);
+      await user.type(nameInput, '   '); // Тільки пробіли
+      await user.clear(nameInput);
+
+      const submitButton = screen.getByRole('button', { name: /Створити/i });
       await user.click(submitButton);
 
-      // Assert
-      await waitFor(() => {
-        expect(suppliersService.createSupplier).not.toHaveBeenCalled();
-        // Форма не повинна відправлятися без назви
-      });
+      // Assert - форма не повинна відправлятися через валідацію
+      // (HTML5 required або JavaScript trim перевірка)
+      expect(mockOnSubmit).not.toHaveBeenCalled();
     });
   });
 
   describe('R3: Порожній контакт - успіх', () => {
-    it('повинен успішно створити постачальника без контакту', async () => {
+    it('повинен успішно викликати onSubmit без контакту', async () => {
       // Arrange
       const user = userEvent.setup();
-      suppliersService.createSupplier.mockResolvedValue({
-        id: 1,
-        name: 'Supplier No Contact',
-      });
-
-      renderWithRouter(<SupplierForm onSuccess={mockOnSuccess} />);
+      render(<SupplierForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
 
       // Act
-      const nameInput = screen.getByPlaceholderText(/Назва постачальника/i);
+      const nameInput = screen.getByPlaceholderText(/Введіть назву постачальника/i);
       await user.type(nameInput, 'Supplier No Contact');
 
-      const submitButton = screen.getByRole('button', { name: /Зберегти/i });
+      const submitButton = screen.getByRole('button', { name: /Створити/i });
       await user.click(submitButton);
 
       // Assert
-      await waitFor(() => {
-        expect(suppliersService.createSupplier).toHaveBeenCalledWith({
-          name: 'Supplier No Contact',
-          contact_info: '',
-        });
-        expect(toast.success).toHaveBeenCalled();
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        name: 'Supplier No Contact',
+        contact_info: '',
       });
     });
   });
 
-  describe('R4: Помилка API - показати повідомлення', () => {
-    it('повинен показати помилку при невдалому запиті', async () => {
+  describe('R4: Кнопка скасування', () => {
+    it('повинен викликати onCancel при натисканні Скасувати', async () => {
       // Arrange
       const user = userEvent.setup();
-      const errorMessage = 'Network error';
-      suppliersService.createSupplier.mockRejectedValue(new Error(errorMessage));
-
-      renderWithRouter(<SupplierForm onSuccess={mockOnSuccess} />);
+      render(<SupplierForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />);
 
       // Act
-      const nameInput = screen.getByPlaceholderText(/Назва постачальника/i);
-      await user.type(nameInput, 'Test Supplier');
-
-      const submitButton = screen.getByRole('button', { name: /Зберегти/i });
-      await user.click(submitButton);
+      const cancelButton = screen.getByRole('button', { name: /Скасувати/i });
+      await user.click(cancelButton);
 
       // Assert
-      await waitFor(() => {
-        expect(toast.error).toHaveBeenCalled();
-        expect(mockOnSuccess).not.toHaveBeenCalled();
-      });
+      expect(mockOnCancel).toHaveBeenCalled();
+      expect(mockOnSubmit).not.toHaveBeenCalled();
     });
   });
 
   describe('R5: Оновлення існуючого постачальника', () => {
-    it('повинен викликати updateSupplier для існуючого постачальника', async () => {
+    it('повинен показати Зберегти для існуючого постачальника', async () => {
       // Arrange
       const user = userEvent.setup();
       const existingSupplier = {
@@ -156,19 +121,20 @@ describe('SupplierForm - Decision Table Tests', () => {
         contact_info: 'old@example.com',
       };
 
-      suppliersService.updateSupplier.mockResolvedValue({
-        ...existingSupplier,
-        name: 'Updated Supplier',
-      });
-
-      renderWithRouter(
+      render(
         <SupplierForm
           supplier={existingSupplier}
-          onSuccess={mockOnSuccess}
+          onSubmit={mockOnSubmit}
+          onCancel={mockOnCancel}
         />
       );
 
-      // Act
+      // Assert - перевіряємо що форма заповнена даними
+      expect(screen.getByDisplayValue('Existing Supplier')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('old@example.com')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Зберегти/i })).toBeInTheDocument();
+
+      // Act - оновлюємо назву
       const nameInput = screen.getByDisplayValue('Existing Supplier');
       await user.clear(nameInput);
       await user.type(nameInput, 'Updated Supplier');
@@ -177,12 +143,9 @@ describe('SupplierForm - Decision Table Tests', () => {
       await user.click(submitButton);
 
       // Assert
-      await waitFor(() => {
-        expect(suppliersService.updateSupplier).toHaveBeenCalledWith(1, {
-          name: 'Updated Supplier',
-          contact_info: 'old@example.com',
-        });
-        expect(toast.success).toHaveBeenCalled();
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        name: 'Updated Supplier',
+        contact_info: 'old@example.com',
       });
     });
   });
