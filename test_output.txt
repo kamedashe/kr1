@@ -1,0 +1,39 @@
+C:\Users\Богдан\AppData\Local\Programs\Python\Python310\lib\site-packages\pytest_asyncio\plugin.py:252: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.10.10, pytest-8.2.0, pluggy-1.6.0 -- C:\Users\Богдан\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: D:\kr1
+plugins: anyio-4.10.0, asyncio-1.2.0, cov-7.0.0
+asyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 9 items / 8 deselected / 1 selected
+
+tests/test_validate_value.py::test_invalid_values_raise[3.14-\u041f\u043e\u0442\u0440\u0456\u0431\u043d\u043e \u0446\u0456\u043b\u0435 \u0447\u0438\u0441\u043b\u043e] FAILED [100%]
+
+================================== FAILURES ===================================
+_ test_invalid_values_raise[3.14-\u041f\u043e\u0442\u0440\u0456\u0431\u043d\u043e \u0446\u0456\u043b\u0435 \u0447\u0438\u0441\u043b\u043e] _
+
+input_value = '3.14', errmsg = 'Потрібно ціле число'
+
+    @pytest.mark.parametrize("input_value, errmsg", [
+        ("0", "Число має бути від 1 до 100"),      # EC2: Too small
+        ("101", "Число має бути від 1 до 100"),    # EC3: Too large
+        ("abc", "Потрібно ввести число"),          # EC4: Letters
+        ("@#", "Потрібно ввести число"),           # EC5: Specials
+        ("", "Поле обов'язкове"),                  # EC6: Empty
+        ("3.14", "Потрібно ціле число"),           # EC7: Float
+    ])
+    def test_invalid_values_raise(input_value, errmsg):
+        with pytest.raises(ValueError) as exc:
+            validate_value(input_value)
+>       assert errmsg in str(exc.value)
+E       AssertionError: assert 'Потрібно ціле число' in 'Потрібно ввести число'
+E        +  where 'Потрібно ввести число' = str(ValueError('Потрібно ввести число'))
+E        +    where ValueError('Потрібно ввести число') = <ExceptionInfo ValueError('Потрібно ввести число') tblen=2>.value
+
+tests\test_validate_value.py:29: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_validate_value.py::test_invalid_values_raise[3.14-\u041f\u043e\u0442\u0440\u0456\u0431\u043d\u043e \u0446\u0456\u043b\u0435 \u0447\u0438\u0441\u043b\u043e]
+======================= 1 failed, 8 deselected in 0.10s =======================
