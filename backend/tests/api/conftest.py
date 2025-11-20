@@ -2,15 +2,18 @@
 Конфігурація pytest для тестів API
 """
 import pytest
+import pytest_asyncio
 import sys
 import os
 import tempfile
+from httpx import AsyncClient, ASGITransport
 
 # Додаємо шлях до backend/app
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from app.db.database import get_connection
 from app.db import database
+from app.main import app
 
 
 # Глобальна тестова БД
@@ -125,3 +128,20 @@ def clear_test_data():
         conn.close()
 
     yield
+
+
+@pytest_asyncio.fixture
+async def client():
+    """Async test client для FastAPI"""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        yield ac
+
+
+@pytest.fixture
+def auth_headers():
+    """Authentication headers для тестів (HTTP Basic Auth)"""
+    import base64
+    # Використовуємо admin:admin credentials
+    credentials = base64.b64encode(b"admin:admin").decode("utf-8")
+    return {"Authorization": f"Basic {credentials}"}
